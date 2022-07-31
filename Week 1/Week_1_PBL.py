@@ -4,7 +4,7 @@ Created on Fri Jul 29 13:02:05 2022
 
 @author: stran
 """
-#theta(x) = T(x) - Ta
+#theta(x) = T(x) - Ta (note for self on how theta defined)
 
 #Import Required Modules
 import numpy as np
@@ -31,16 +31,26 @@ Ta = 293.15 #K
 T0 = 353.15 #K
 T4  = 343.15 #K
 
-#Create coefficient matrix
-A = np.array([1,1,1,0])
-B = np.array([1,s,s,s,1])
-C = np.array([0,1,1,1])
+#Create diagonal strucutre for coefficient matrix
+A = np.ones(part-1, int)
+A[part-2] = 0
 
+B = np.full(part, s)
+B[0] = 1
+B[part-1] = 1
+
+C = np.ones(part-1, int)
+C[0] = 0
+
+#Combine vectors to make coefficient matrix
 M = np.diag(A, -1) + np.diag(B, 0) + np.diag(C, 1)
-print(f"The coefficient matrix M is /n{M}\n")
+print(f"The coefficient matrix is \n{M}")
 
-b = np.array([T0 - Ta, 0, 0, 0, T4 - Ta])
-print(f"The vector b is \n{b}\n")
+#Create vector b
+b = np.zeros(part, int)
+b[0] = T0 - Ta
+b[part -1] = T4 - Ta
+print(f"\nThe vector b is \n{b}\n")
 
 #Solve system of linear eqns
 x = np.linalg.solve(M, b)
@@ -55,7 +65,7 @@ for i in range(len(L_array)):
 
 #Add Ta to all values in list
 temp_list = [j + 293.15 for j in theta_list] #K (convert theta to temps)
-print(f"The analytical solution for points along the wire is \n{theta_list} K")
+print(f"The analytical solution for points along the wire is \n{temp_list} K")
 
 #Plot setup
 plt.title(f"Temperature Distributuion of Wire for n={part} points")
