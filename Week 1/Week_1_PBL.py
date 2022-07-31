@@ -9,17 +9,17 @@ Created on Fri Jul 29 13:02:05 2022
 #Import Required Modules
 import numpy as np
 import matplotlib.pyplot as plt
-from math import pi
 
 #Define Problem Constants
 L =  1e-3 #mm (wire length)
-L_array = 
 part = 5   #no. of partitions
+L_array = np.linspace(0, L, part)
+print(f"The nodes in the wire are located at \n{L_array} m along the wire\n")
 d = 5e-6 #um (diameter)
 k = 200 #2/mK (thermal conductivity)
 hbar = 1000 #W/m^2.K (heat transfer coefficient)
-perim = pi*d
-area = (pi/4)*d**2
+perim = np.pi*d
+area = (np.pi/4)*d**2
 delta_x = L/part
 
 #Define values
@@ -37,20 +37,33 @@ B = np.array([1,s,s,s,1])
 C = np.array([0,1,1,1])
 
 M = np.diag(A, -1) + np.diag(B, 0) + np.diag(C, 1)
-print(M)
+print(f"The coefficient matrix M is /n{M}\n")
 
 b = np.array([T0 - Ta, 0, 0, 0, T4 - Ta])
-print(b)
+print(f"The vector b is \n{b}\n")
 
+#Solve system of linear eqns
 x = np.linalg.solve(M, b)
-x= x + 293.15
-print(x)
+x= x + 293.15 #add ambient temp to all values
+print(f"The solution vector for points along the wire is \n{x} K\n")
+
+#Compute analytical solution
+theta_list = []
+for i in range(len(L_array)):
+    theta_i = (((T4-Ta)*np.sinh(np.sqrt(beta)*L_array[i]))+(T0-Ta)*np.sinh(np.sqrt(beta)*(L-L_array[i])))/(np.sinh(np.sqrt(beta)*L))
+    theta_list.append(theta_i)
+
+#Add Ta to all values in list
+temp_list = [j + 293.15 for j in theta_list] #K (convert theta to temps)
+print(f"The analytical solution for points along the wire is \n{theta_list} K")
 
 #Plot setup
-plt.title("Temperature Distributuion of Wire")
+plt.title(f"Temperature Distributuion of Wire for n={part} points")
 plt.xlabel("Distance Along wire [m]")
 plt.ylabel("Temperature [K]")
 
 #Plot output of finite difference formulas
-plt.plot(L_array, x)
+plt.plot(L_array, x, label = "Numerical Solution")
+plt.plot(L_array, temp_list, label = "Analytical Solution")
+plt.legend()
 plt.show()
